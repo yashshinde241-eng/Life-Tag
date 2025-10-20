@@ -1,22 +1,23 @@
-// Import required packages
-const express = require("express");
-const cors = require("cors");
+// backend/index.js
+const app = require("./app");
+const { sequelize } = require("./models"); // ensures models/index exports sequelize if needed
 require("dotenv").config();
 
-// Initialize the Express app
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Basic test route
-app.get("/", (req, res) => {
-  res.send("✅ Life-Tag backend server is running successfully!");
-});
-
-// Server listen on port
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
-});
+
+async function start() {
+  try {
+    // ensure DB connection
+    await sequelize.authenticate();
+    console.log("✅ Database connection successful!");
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`✅ Server running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1);
+  }
+}
+
+start();

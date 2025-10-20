@@ -1,13 +1,27 @@
+// backend/models/MedicalRecord.js
 const { DataTypes } = require("sequelize");
 const sequelize = require("./db");
 const Doctor = require("./Doctor");
 const Patient = require("./Patient");
 
-const MedicalRecord = sequelize.define("MedicalRecord", {
-  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-  filePath: { type: DataTypes.STRING, allowNull: false },
-});
+const MedicalRecord = sequelize.define(
+  "MedicalRecord",
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    patientId: { type: DataTypes.INTEGER, allowNull: false },
+    doctorId: { type: DataTypes.INTEGER, allowNull: false },
+    fileName: { type: DataTypes.STRING, allowNull: false },
+    filePath: { type: DataTypes.STRING, allowNull: false },     // local storage path (uploads/)
+    encryptedData: { type: DataTypes.TEXT, allowNull: true },   // optional: encrypted blob
+    recordType: { type: DataTypes.STRING, allowNull: true },    // e.g., Prescription, Lab Report
+  },
+  {
+    tableName: "medical_records",
+    timestamps: true,
+  }
+);
 
+// Associations
 Doctor.hasMany(MedicalRecord, { foreignKey: "doctorId" });
 Patient.hasMany(MedicalRecord, { foreignKey: "patientId" });
 MedicalRecord.belongsTo(Doctor, { foreignKey: "doctorId" });

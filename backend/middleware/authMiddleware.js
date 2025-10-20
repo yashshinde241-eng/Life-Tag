@@ -1,19 +1,23 @@
+// backend/middleware/authMiddleware.js
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 
 const authMiddleware = (roles = []) => {
-  // roles can be "user", "doctor" or ["user","doctor"]
+  // roles can be [] (any authenticated) or ["patient"], ["doctor"] etc.
   return (req, res, next) => {
-    const authHeader = req.headers["authorization"];
-    if (!authHeader) return res.status(401).json({ message: "No token provided" });
+    const header = req.headers["authorization"];
+    if (!header) return res.status(401).json({ message: "No authorization header" });
 
-    const token = authHeader.split(" ")[1]; // Bearer <token>
-    if (!token) return res.status(401).json({ message: "Invalid token format" });
+    const parts = header.split(" ");
+    if (parts.length !== 2 || parts[0] !== "Bearer")
+      return res.status(401).json({ message: "Invalid authorization format" });
 
+    const token = parts[1];
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded; // contains id and role
+      req.user = decoded; // { id, role, iat, exp }
       if (roles.length && !roles.includes(decoded.role)) {
-        return res.status(403).json({ message: "Access forbidden: insufficient rights" });
+        return res.status(403).json({ message: "Forbidden: insufficient role" });
       }
       next();
     } catch (err) {

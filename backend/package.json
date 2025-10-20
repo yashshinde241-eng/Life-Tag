@@ -1,25 +1,27 @@
 {
-  "name": "backend",
+  "name": "lifetag-backend",
   "version": "1.0.0",
-  "description": "��#\u0000 \u0000B\u0000a\u0000c\u0000k\u0000e\u0000n\u0000d\u0000 \u0000f\u0000o\u0000r\u0000 \u0000L\u0000i\u0000f\u0000e\u0000-\u0000T\u0000a\u0000g\u0000\r\u0000 \u0000",
+  "description": "Life-Tag backend: Node + Express + Sequelize (Postgres) with encrypted file storage",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "sync": "node models/syncModels.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "express-validator": "^7.2.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^2.0.2",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^7.0.9",
     "pg": "^8.16.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }

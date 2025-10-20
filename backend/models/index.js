@@ -1,5 +1,12 @@
-const Doctor = require("./Doctor");
+// backend/models/index.js
+const sequelize = require("./db");
 const Patient = require("./Patient");
+const Doctor = require("./Doctor");
 const MedicalRecord = require("./MedicalRecord");
 
-module.exports = { Doctor, Patient, MedicalRecord };
+module.exports = {
+  sequelize,
+  Patient,
+  Doctor,
+  MedicalRecord,
+};

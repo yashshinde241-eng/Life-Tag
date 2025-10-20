@@ -1,28 +1,25 @@
-// Import models and database connection
+// backend/models/syncModels.js
 const sequelize = require("./db");
-const User = require("./Patient");
+const Patient = require("./Patient");
 const Doctor = require("./Doctor");
 const MedicalRecord = require("./MedicalRecord");
 
-// Wrap all async code in a function
 async function syncAll() {
   try {
-    // Test DB connection
     await sequelize.authenticate();
     console.log("✅ Database connection successful!");
 
-    // Sync all models
-    await User.sync({ alter: true });
+    // sync with alter true to update table structure as per models
+    await Patient.sync({ alter: true });
     await Doctor.sync({ alter: true });
     await MedicalRecord.sync({ alter: true });
 
     console.log("✅ All models were synchronized successfully!");
-    process.exit(0); // Exit after success
+    process.exit(0);
   } catch (err) {
-    console.error(err);
-    process.exit(1); // Exit on error
+    console.error("❌ Error syncing models:", err);
+    process.exit(1);
   }
 }
 
-// Call the async function
 syncAll();
