@@ -3,6 +3,7 @@ const sequelize = require("./db");
 const Patient = require("./Patient");
 const Doctor = require("./Doctor");
 const MedicalRecord = require("./MedicalRecord");
+const AccessRequest = require("./AccessRequest");
 
 async function syncAll() {
   try {
@@ -13,6 +14,7 @@ async function syncAll() {
     await Patient.sync({ alter: true });
     await Doctor.sync({ alter: true });
     await MedicalRecord.sync({ alter: true });
+    await AccessRequest.sync({ alter: true });
 
     console.log("✅ All models were synchronized successfully!");
     process.exit(0);

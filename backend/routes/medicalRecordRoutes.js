@@ -4,10 +4,10 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const CryptoJS = require("crypto-js");
-const { MedicalRecord, Doctor, Patient } = require("../models");
+const { MedicalRecord, Doctor, Patient, AccessRequest } = require("../models");
 const authMiddleware = require("../middleware/authMiddleware");
 require("dotenv").config();
-
+const { Op } = require("sequelize");
 const router = express.Router();
 
 // Ensure uploads folder exists
@@ -94,6 +94,26 @@ router.get("/patient", authMiddleware(["patient"]), async (req, res) => {
 router.get("/patient/:patientId", authMiddleware(["doctor"]), async (req, res) => {
   try {
     const patientId = Number(req.params.patientId);
+    if (isNaN(patientId)) return res.status(400).json({ message: "Invalid patientId" });
+
+    const doctorId = req.user.id;
+
+    // Check active access request
+    const now = new Date();
+    const active = await AccessRequest.findOne({
+      where: {
+        doctorId,
+        patientId,
+        status: "approved",
+        expiresAt: { [Op.gt]: now },
+      },
+    });
+
+    if (!active) {
+      return res.status(403).json({ message: "No active access session. Request access from patient." });
+    }
+
+    // Active access found - return records
     const records = await MedicalRecord.findAll({
       where: { patientId },
       include: [{ model: Doctor, attributes: ["id", "fullName", "specialization", "hospital"] }],

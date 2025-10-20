@@ -7,6 +7,7 @@ require("dotenv").config();
 const userRoutes = require("./routes/userRoutes");
 const doctorRoutes = require("./routes/doctorRoutes");
 const medicalRecordRoutes = require("./routes/medicalRecordRoutes");
+const accessRoutes = require("./routes/accessRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/uploads", express.static("uploads"));
 app.use("/api/users", userRoutes);
 app.use("/api/doctors", doctorRoutes);
 app.use("/api/records", medicalRecordRoutes);
+app.use("/api/access", accessRoutes);
 
 // Root health check
 app.get("/", (req, res) => {
