@@ -1,36 +1,55 @@
 const express = require("express");
-const router = express.Router();
 const multer = require("multer");
-const CryptoJS = require("crypto-js");
-const { MedicalRecord, Doctor, User } = require("../models");
+const path = require("path");
+const { MedicalRecord } = require("../models");
 
-// Configure multer for file upload
-const storage = multer.memoryStorage(); // store in memory for encryption
-const upload = multer({ storage });
+const router = express.Router();
 
-// Doctor uploads medical record
+// 🗂️ Configure File Upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      `${Date.now()}_${file.fieldname}${path.extname(file.originalname)}`
+    );
+  },
+});
+const upload = multer({ storage: storage });
+
+// 🧾 Upload Medical Record
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     const { patientId, doctorId } = req.body;
-    const file = req.file;
+    const filePath = req.file ? req.file.path : null;
 
-    if (!file) return res.status(400).json({ message: "No file uploaded" });
+    if (!filePath)
+      return res.status(400).json({ error: "File is required" });
 
-    // Encrypt file content (as Base64 string)
-    const encryptedData = CryptoJS.AES.encrypt(file.buffer.toString("base64"), process.env.ENCRYPTION_KEY).toString();
-
-    // Save to database
     const record = await MedicalRecord.create({
       patientId,
       doctorId,
-      fileName: file.originalname,
-      encryptedData
+      filePath,
     });
 
-    res.status(201).json({ message: "Medical record uploaded successfully", record });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(201).json({
+      message: "Medical record uploaded successfully",
+      record,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 📄 Get All Records (for viewing)
+router.get("/", async (req, res) => {
+  try {
+    const records = await MedicalRecord.findAll();
+    res.json(records);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

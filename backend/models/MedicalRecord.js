@@ -1,12 +1,16 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("./db");
+const Doctor = require("./Doctor");
+const Patient = require("./Patient");
 
 const MedicalRecord = sequelize.define("MedicalRecord", {
-  patientId: { type: DataTypes.INTEGER, allowNull: false },
-  doctorId: { type: DataTypes.INTEGER, allowNull: false },
-  fileName: { type: DataTypes.STRING, allowNull: false },
-  encryptedData: { type: DataTypes.TEXT, allowNull: false },
-  createdAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW }
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  filePath: { type: DataTypes.STRING, allowNull: false },
 });
+
+Doctor.hasMany(MedicalRecord, { foreignKey: "doctorId" });
+Patient.hasMany(MedicalRecord, { foreignKey: "patientId" });
+MedicalRecord.belongsTo(Doctor, { foreignKey: "doctorId" });
+MedicalRecord.belongsTo(Patient, { foreignKey: "patientId" });
 
 module.exports = MedicalRecord;

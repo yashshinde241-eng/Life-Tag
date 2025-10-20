@@ -1,67 +1,43 @@
 const express = require("express");
-const router = express.Router();
-const { User } = require("../models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const authMiddleware = require("../middleware/authMiddleware");
+const { Patient } = require("../models");
+require("dotenv").config();
 
-// ✅ User Registration (via Aadhaar)
+const router = express.Router();
+
+// 🧾 Register Patient
 router.post("/register", async (req, res) => {
   try {
-    const { name, aadhaar, email, password } = req.body;
-
-    // Check existing Aadhaar or email
-    const existingUser = await User.findOne({ where: { aadhaar } });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
-
+    const { fullName, email, age, gender, password } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await User.create({
-      name,
-      aadhaar,
-      email,
-      password: hashedPassword,
-      role: "user",
+    const newPatient = await Patient.create({
+      fullName, email, age, gender, password: hashedPassword,
     });
-
-    res.status(201).json({ message: "User registered successfully", user: newUser });
+    res.status(201).json({ message: "Patient registered successfully!", newPatient });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(400).json({ error: err.message });
   }
 });
 
-// ✅ User Login
+// 🔑 Login Patient
 router.post("/login", async (req, res) => {
   try {
-    const { aadhaar, password } = req.body;
-    const user = await User.findOne({ where: { aadhaar } });
+    const { email, password } = req.body;
+    const patient = await Patient.findOne({ where: { email } });
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!patient) return res.status(404).json({ error: "Patient not found" });
+    const isMatch = await bcrypt.compare(password, patient.password);
+    if (!isMatch) return res.status(401).json({ error: "Invalid password" });
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(400).json({ message: "Invalid credentials" });
-
-    const token = jwt.sign({ id: user.id, role: "user" }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    const token = jwt.sign(
+      { id: patient.id, role: "patient" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
     res.json({ message: "Login successful", token });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
-
-// ✅ Protected route: Get user profile
-router.get("/profile", authMiddleware(["user"]), async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id, {
-      attributes: { exclude: ["password"] } // don't send password
-    });
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    res.json({ user });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
