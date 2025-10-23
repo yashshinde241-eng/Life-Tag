@@ -1,0 +1,80 @@
+/* src/components/DoctorRequests.css */
+.doctor-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.doctor-request-item {
+  display: flex;
+  flex-direction: row; /* Always row */
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.request-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.request-details strong {
+  font-size: 1.1rem;
+  color: #111;
+}
+
+.request-details span {
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.request-details .notes {
+  font-style: italic;
+  color: #333;
+  margin-top: 4px;
+}
+
+.request-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Align to the right */
+  gap: 0.5rem;
+}
+
+.request-date {
+  font-size: 0.8rem;
+  color: #555;
+  font-weight: bold;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.status-badge.status-pending {
+  background-color: #FFF3CD; /* Light yellow */
+  color: #664D03;
+}
+
+.status-badge.status-approved {
+  background-color: #D1E7DD; /* Light green */
+  color: #0F5132;
+}
+
+.status-badge.status-rejected,
+.status-badge.status-expired {
+  background-color: #F8D7DA; /* Light red */
+  color: #58151C;
+}

@@ -76,7 +76,7 @@ router.put("/respond/:id", authMiddleware(["patient"]), async (req, res) => {
     }
 
     if (action === "approve") {
-      const mins = Number(durationMinutes) || 10; // default 10 minutes if not provided
+      const mins = Number(durationMinutes) || 4; // default 10 minutes if not provided
       const expiresAt = new Date(Date.now() + mins * 60 * 1000);
       reqRecord.status = "approved";
       reqRecord.expiresAt = expiresAt;

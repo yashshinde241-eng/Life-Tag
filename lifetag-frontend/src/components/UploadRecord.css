@@ -1,0 +1,18 @@
+/* src/components/UploadRecord.css */
+.file-input::file-selector-button {
+  background-color: #98FB98; /* Our light green */
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  color: #111;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  margin-right: 1rem;
+}
+
+.file-input::file-selector-button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 15px rgba(152, 251, 152, 0.5);
+}
