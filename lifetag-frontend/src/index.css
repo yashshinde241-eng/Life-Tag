@@ -18,6 +18,9 @@ body {
   justify-content: center;
   align-items: center;
   padding: 2rem;
+
+  padding-bottom: 120px;
+  
   box-sizing: border-box;
 }
 

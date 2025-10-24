@@ -1,37 +1,87 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-// Import our pages
+// We need to export a wrapped App to use the 'auth' hook
+// THIS LINE WAS MOVED FROM THE BOTTOM TO THE TOP
+import { AuthProvider, useAuth } from './components/context/AuthContext';
+
+// Import Layouts
+import LayoutWithNavbar from './components/LayoutWithNavbar';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Import Public Pages
 import Welcome from './components/Welcome';
 import Login from './components/Login';
 import Register from './components/Register';
 
-// 1. Import our new components
-import ProtectedRoute from './components/ProtectedRoute';
+// Import Core Protected Pages
 import DashboardWrapper from './components/DashboardWrapper';
+import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
 
-import './App.css';
-import './index.css';
+// Import Patient Pages
+import PatientRecordsPage from './pages/PatientRecordsPage';
+import PatientRequestsPage from './pages/PatientRequestsPage';
+
+// Import Doctor Pages
+import DoctorRequestAccessPage from './pages/DoctorRequestAccessPage';
+import DoctorSentRequestsPage from './pages/DoctorSentRequestsPage';
+import DoctorUploadPage from './pages/DoctorUploadPage';
+import DoctorViewRecordsPage from './pages/DoctorViewRecordsPage';
+
+// Import CSS
+import './App.css'; 
+import './index.css'; 
 
 function App() {
+  const { auth } = useAuth(); // Get auth to decide routes
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
+        {/* --- 1. PUBLIC ROUTES --- */}
         <Route path="/" element={<Welcome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* 2. Create the Protected Dashboard Route */}
-        {/* This route is wrapped by ProtectedRoute */}
-        <Route path="/dashboard" element={<ProtectedRoute />}>
-          {/* If the user is logged in, it will render this child */}
-          <Route index element={<DashboardWrapper />} />
+        {/* --- 2. PROTECTED ROUTES --- */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<LayoutWithNavbar />}>
+            {/* Core Pages (both roles) */}
+            <Route path="/dashboard" element={<DashboardWrapper />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+
+            {/* Patient Routes */}
+            {auth?.role === 'patient' && (
+              <>
+                <Route path="/my-records" element={<PatientRecordsPage />} />
+                <Route path="/my-requests" element={<PatientRequestsPage />} />
+              </>
+            )}
+
+            {/* Doctor Routes */}
+            {auth?.role === 'doctor' && (
+              <>
+                <Route path="/request-access" element={<DoctorRequestAccessPage />} />
+                <Route path="/sent-requests" element={<DoctorSentRequestsPage />} />
+                <Route path="/upload-record" element={<DoctorUploadPage />} />
+                <Route path="/view-records" element={<DoctorViewRecordsPage />} />
+              </>
+            )}
+          </Route>
         </Route>
-        
       </Routes>
     </BrowserRouter>
   );
 }
 
-export default App;
+// THIS IMPORT LINE WAS DELETED FROM HERE
+
+const AppWrapper = () => (
+  <AuthProvider>
+    <App />
+  </AuthProvider>
+);
+
+export default AppWrapper;

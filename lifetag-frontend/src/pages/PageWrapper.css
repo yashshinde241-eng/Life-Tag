@@ -1,0 +1,10 @@
+/* This centers the single card on our new pages */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 800px; /* Give the card some space */
+  margin: 0 auto;
+}
