@@ -1,12 +1,10 @@
+// src/components/Register.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import apiClient from '../api'; // Import our new api helper
+import apiClient from '../api';
 
 const Register = () => {
-  // 'patient' or 'doctor'
-  const [role, setRole] = useState('patient'); 
-  
-  // This state will hold all the form data
+  const [role, setRole] = useState('patient');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -16,15 +14,10 @@ const Register = () => {
     specialization: '',
     hospital: '',
   });
-
-  // States for loading and error messages
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  
-  // This hook lets us redirect the user after they register
   const navigate = useNavigate();
 
-  // This function updates the formData state when you type
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -33,26 +26,26 @@ const Register = () => {
     });
   };
 
-  // This function runs when you click the "Register" button
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Stop the page from reloading
+    e.preventDefault();
     setLoading(true);
     setError(null);
-
     let url = '';
     let data = {};
-
-    // 1. Prepare the data based on the selected role
     if (role === 'patient') {
       url = '/users/register';
       data = {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
-        age: formData.age || undefined, // Send 'undefined' if empty
+        age: formData.age || undefined,
         gender: formData.gender || undefined,
       };
-    } else { // role === 'doctor'
+    } else {
       url = '/doctors/register';
       data = {
         fullName: formData.fullName,
@@ -62,22 +55,14 @@ const Register = () => {
         hospital: formData.hospital || undefined,
       };
     }
-
-    // 2. Try to send the data to the backend
     try {
       const response = await apiClient.post(url, data);
-      
-      // If it works:
       console.log('Registration successful:', response.data);
       setLoading(false);
-      // Redirect to the login page
-      navigate('/login'); 
-      
+      navigate('/login');
     } catch (err) {
-      // If it fails:
       console.error('Registration error:', err.response);
       setLoading(false);
-      // Set the error message from the backend
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
@@ -86,26 +71,34 @@ const Register = () => {
     <div className="glass-card dark">
       <h2>Create Your Account</h2>
 
-      {/* 3. The Toggle Buttons */}
-      <div className="form-toggle">
-        <button
-          className={`toggle-button ${role === 'patient' ? 'active' : ''}`}
-          onClick={() => setRole('patient')}
-        >
-          I am a Patient
-        </button>
-        <button
-          className={`toggle-button ${role === 'doctor' ? 'active' : ''}`}
-          onClick={() => setRole('doctor')}
-        >
-          I am a Doctor
-        </button>
-      </div>
+      {/* --- NEW CORRECTED HTML --- */}
+      <div 
+        className={`form-toggle ${role === 'doctor' ? 'doctor-active' : ''}`}
+      >
+        {/* Layer 1: White Text (Background) */}
+        <div className="toggle-text-layer background-text">
+          <span>Patient</span>
+          <span>Doctor</span>
+        </div>
 
-      {/* 4. The Registration Form */}
+        {/* Layer 2: Sliding Pill (Mask) */}
+        <div className="sliding-pill">
+          {/* Layer 3: White/Bold Text (Foreground) */}
+          <div className="toggle-text-layer foreground-text">
+            <span>Patient</span>
+            <span>Doctor</span>
+          </div>
+        </div>
+
+        {/* Layer 4: Click Handlers */}
+        <div className="toggle-clickable-layer">
+           <div onClick={() => handleRoleChange('patient')}></div>
+           <div onClick={() => handleRoleChange('doctor')}></div>
+        </div>
+      </div>
+      {/* --- END NEW HTML --- */}
+      
       <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
-        
-        {/* Fields for EVERYONE */}
         <label>Full Name</label>
         <input
           type="text"
@@ -136,7 +129,6 @@ const Register = () => {
           required
         />
 
-        {/* 5. Conditional Fields for PATIENT */}
         {role === 'patient' && (
           <>
             <label>Age (Optional)</label>
@@ -159,7 +151,6 @@ const Register = () => {
           </>
         )}
 
-        {/* 6. Conditional Fields for DOCTOR */}
         {role === 'doctor' && (
           <>
             <label>Specialization</label>
@@ -183,14 +174,12 @@ const Register = () => {
           </>
         )}
 
-        {/* 7. Error Message Display */}
         {error && (
           <div className="error-message">
             {error}
           </div>
         )}
 
-        {/* 8. Submit Button */}
         <button type="submit" className="primary-button" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
         </button>

@@ -13,7 +13,7 @@ body {
 
   /* Our "very light green" background */
   background-color: #F8FFF8;
-  
+
   /* Remove the centering and padding-bottom */
   min-height: 100vh;
   box-sizing: border-box;
@@ -34,11 +34,13 @@ body {
 .glass-card {
   background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px); /* For Safari */
+  -webkit-backdrop-filter: blur(15px);
+  /* For Safari */
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  padding: 2.5rem; /* More padding for a premium feel */
+  padding: 2.5rem;
+  /* More padding for a premium feel */
   width: 100%;
   max-width: 420px;
   box-sizing: border-box;
@@ -48,28 +50,36 @@ body {
 /* 3. Our "Light Green" Button */
 /* 3. Our "Primary" Button */
 .primary-button {
-  background-color: #FFFFFF; /* Solid White */
-  color: #111; /* Dark Text */
-  border: 1px solid transparent; /* Prepare for hover border */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
-  
+  background-color: #FFFFFF;
+  /* Solid White */
+  color: #111;
+  /* Dark Text */
+  border: 1px solid transparent;
+  /* Prepare for hover border */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  /* Soft shadow */
+
   border-radius: 10px;
   padding: 14px 24px;
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
   width: 100%;
-  transition: all 0.2s ease-in-out; /* Smooth hover */
-  text-decoration: none; 
-  display: inline-block; 
+  transition: all 0.2s ease-in-out;
+  /* Smooth hover */
+  text-decoration: none;
+  display: inline-block;
   box-sizing: border-box;
 }
 
 .primary-button:hover {
-  transform: scale(1.02); 
-  background: rgba(255, 255, 255, 0.2); /* Translucent glass */
-  color: #FFFFFF; /* White Text */
-  border: 1px solid rgba(255, 255, 255, 0.5); /* Brighter border */
+  transform: scale(1.02);
+  background: rgba(255, 255, 255, 0.2);
+  /* Translucent glass */
+  color: #FFFFFF;
+  /* White Text */
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  /* Brighter border */
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 }
 
@@ -92,39 +102,128 @@ body {
 }
 
 .modern-input:focus {
-  outline: 2px solid #FFFFFF; /* White outline */
+  outline: 2px solid #FFFFFF;
+  /* White outline */
   border: 1px solid transparent;
 }
 
-/* 5. Utility Styles */
+/* --- NEW SLOW-WIPE SLIDER (Corrected) --- */
+
 .form-toggle {
-  display: flex;
-  margin-bottom: 1.5rem;
+  position: relative;
+  background: rgba(0, 0, 0, 0.2);
+  /* Dark track */
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
 }
 
-.toggle-button {
+/* Base styles for BOTH text layers */
+.toggle-text-layer {
+  display: flex;
+  width: 100%;
+}
+
+.toggle-text-layer span {
   width: 50%;
   padding: 12px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
   font-size: 0.9rem;
   font-weight: bold;
-  color: #555;
-  border-radius: 10px;
+  text-align: center;
+  box-sizing: border-box;
 }
 
-.toggle-button.active {
-  background: #fff;
-  color: #000;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+/* Layer 1: White text (Background) */
+/* This layer is STACKED at the bottom */
+.toggle-text-layer.background-text {
+  color: #FFFFFF;
+  position: absolute;
+  top: 4px;
+  left: 0;
+  z-index: 1;
+  /* Sits at the bottom */
+}
+
+/* Layer 2: Sliding Pill (Mask) */
+.sliding-pill {
+  position: relative;
+  /* No longer absolute */
+  width: calc(50% - 4px);
+  height: 38px;
+  /* Height based on text padding (12*2 + 14) */
+
+  /* This is our translucent glass pill */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 2;
+  /* Sits on top of background text */
+
+  /* THIS IS THE SLOW, SMOOTH ANIMATION */
+  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Layer 3: White/Bold Text (Foreground) */
+/* This layer lives INSIDE the pill */
+.toggle-text-layer.foreground-text {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: #FFFFFF;
+  /* White text (as requested) */
+  font-weight: 700;
+
+  /* We make this layer 200% as wide as the toggle */
+  width: 200%;
+  /* We shift it left by 4px to align with the parent */
+  left: -4px;
+
+  /* This moves the text layer inside the pill */
+  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Layer 4: Invisible Click Targets */
+.toggle-clickable-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  z-index: 3;
+}
+
+.toggle-clickable-layer div {
+  width: 50%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* --- THE ANIMATION (triggered by React) --- */
+
+/* 1. Move the Pill */
+.form-toggle.doctor-active .sliding-pill {
+  /* Move the pill 100% of its *parent's* width, plus 4px */
+  transform: translateX(calc(100% + 4px));
+}
+
+/* 2. Move the Text INSIDE the pill */
+.form-toggle.doctor-active .foreground-text {
+  /* Move the text layer 50% of its *own* width to the left */
+  /* (50% of 200% = 100% of the parent) */
+  transform: translateX(-50%);
 }
 
 .error-message {
-  color: #D8000C; /* Red */
-  background-color: #FFD2D2; /* Light red */
+  color: #D8000C;
+  /* Red */
+  background-color: #FFD2D2;
+  /* Light red */
   border: 1px solid #D8000C;
   border-radius: 8px;
   padding: 10px;
@@ -134,15 +233,18 @@ body {
 
 /* Add this new style block */
 .glass-card.dark {
-  background: rgba(40, 40, 40, 0.35); /* Dark grey glass */
+  background: rgba(40, 40, 40, 0.35);
+  /* Dark grey glass */
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
-  color: #FFFFFF; /* Makes all text inside white */
+  color: #FFFFFF;
+  /* Makes all text inside white */
 }
 
 /* This makes links look good on the dark card */
 .glass-card.dark a {
-  color: #000000; /* Use the blue we picked earlier */
+  color: #000000;
+  /* Use the blue we picked earlier */
   font-weight: bold;
 }
 

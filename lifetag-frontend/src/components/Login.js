@@ -1,7 +1,8 @@
+// src/components/Login.js
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '../api';
-import { useAuth } from './context/AuthContext'; // 1. Import the useAuth hook
+import { useAuth } from './context/AuthContext';
 
 const Login = () => {
   const [role, setRole] = useState('patient');
@@ -9,12 +10,10 @@ const Login = () => {
     email: '',
     password: '',
   });
-
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
-  const { login } = useAuth(); // 2. Get the login function from our context
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,15 +22,17 @@ const Login = () => {
       [name]: value,
     });
   };
+  
+  const handleRoleChange = (newRole) => {
+    setRole(newRole);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     let url = '';
     let roleToSend = '';
-
     if (role === 'patient') {
       url = '/users/login';
       roleToSend = 'patient';
@@ -39,24 +40,13 @@ const Login = () => {
       url = '/doctors/login';
       roleToSend = 'doctor';
     }
-
     try {
       const response = await apiClient.post(url, formData);
-
-      // 3. Extract data from the successful response
       const { token, patientId, doctorId } = response.data;
-      
-      // Determine the ID based on the role
       const id = role === 'patient' ? patientId : doctorId;
-
-      // 4. Call our global login function!
       login(token, roleToSend, id);
-      
       setLoading(false);
-      
-      // 5. Redirect to the (currently empty) dashboard
       navigate('/dashboard');
-
     } catch (err) {
       console.error('Login error:', err.response);
       setLoading(false);
@@ -68,20 +58,32 @@ const Login = () => {
     <div className="glass-card dark">
       <h2>Login to Your Account</h2>
 
-      <div className="form-toggle">
-        <button
-          className={`toggle-button ${role === 'patient' ? 'active' : ''}`}
-          onClick={() => setRole('patient')}
-        >
-          I am a Patient
-        </button>
-        <button
-          className={`toggle-button ${role === 'doctor' ? 'active' : ''}`}
-          onClick={() => setRole('doctor')}
-        >
-          I am a Doctor
-        </button>
+      {/* --- NEW CORRECTED HTML --- */}
+      <div 
+        className={`form-toggle ${role === 'doctor' ? 'doctor-active' : ''}`}
+      >
+        {/* Layer 1: White Text (Background) */}
+        <div className="toggle-text-layer background-text">
+          <span>Patient</span>
+          <span>Doctor</span>
+        </div>
+
+        {/* Layer 2: Sliding Pill (Mask) */}
+        <div className="sliding-pill">
+          {/* Layer 3: White/Bold Text (Foreground) */}
+          <div className="toggle-text-layer foreground-text">
+            <span>Patient</span>
+            <span>Doctor</span>
+          </div>
+        </div>
+
+        {/* Layer 4: Click Handlers */}
+        <div className="toggle-clickable-layer">
+           <div onClick={() => handleRoleChange('patient')}></div>
+           <div onClick={() => handleRoleChange('doctor')}></div>
+        </div>
       </div>
+      {/* --- END NEW HTML --- */}
 
       <form onSubmit={handleSubmit} style={{ textAlign: 'left' }}>
         <label>Email</label>
