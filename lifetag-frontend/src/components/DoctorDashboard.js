@@ -6,6 +6,7 @@ import './Dashboard.css'; // 2. REUSE the same dashboard styles
 import RequestAccess from './RequestAccess'; 
 import DoctorRequests from './DoctorRequests'; 
 import UploadRecord from './UploadRecord'; 
+import DoctorViewPatientRecords from './DoctorViewPatientRecords';
 
 const DoctorDashboard = () => {
   const { logout } = useAuth();
@@ -37,6 +38,7 @@ const DoctorDashboard = () => {
           {/* Other cards will go here in the next steps */}
           <RequestAccess />
           <DoctorRequests />
+          <DoctorViewPatientRecords />
           <UploadRecord />
         </main>
       </div>

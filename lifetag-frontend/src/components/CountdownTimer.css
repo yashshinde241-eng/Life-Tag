@@ -1,0 +1,23 @@
+/* src/components/CountdownTimer.css */
+
+/* This looks like our "approved" badge */
+.timer-badge.active {
+  background-color: #D1E7DD; /* Light green */
+  color: #0F5132;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.9rem; /* Make it slightly larger */
+  font-family: 'Courier New', Courier, monospace; /* Monospace for a timer feel */
+}
+
+/* This looks like our "rejected" badge */
+.timer-badge.expired {
+  background-color: #F8D7DA; /* Light red */
+  color: #58151C;
+  padding: 5px 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
