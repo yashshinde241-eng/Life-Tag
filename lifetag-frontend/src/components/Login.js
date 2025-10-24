@@ -65,7 +65,7 @@ const Login = () => {
   };
 
   return (
-    <div className="glass-card">
+    <div className="glass-card dark">
       <h2>Login to Your Account</h2>
 
       <div className="form-toggle">

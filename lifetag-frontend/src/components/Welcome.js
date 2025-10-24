@@ -4,14 +4,14 @@ import './Welcome.css'; // We'll create this file next
 
 const Welcome = () => {
   return (
-    <div className="glass-card welcome-card">
+    <div className="glass-card welcome-card dark">
       <h1>Welcome to LifeTag</h1>
       <p>Your secure, decentralized health record system.</p>
       <div className="welcome-buttons">
         <Link to="/login" className="primary-button">
           Login
         </Link>
-        <Link to="/register" className="primary-button secondary">
+        <Link to="/register" className="primary-button">
           Register
         </Link>
       </div>

@@ -83,7 +83,7 @@ const Register = () => {
   };
 
   return (
-    <div className="glass-card">
+    <div className="glass-card dark">
       <h2>Create Your Account</h2>
 
       {/* 3. The Toggle Buttons */}

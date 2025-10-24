@@ -14,14 +14,3 @@
   gap: 1rem; /* Adds space between the buttons */
   margin-top: 2rem;
 }
-
-/* This makes the register button visually secondary */
-.primary-button.secondary {
-  background-color: rgba(255, 255, 255, 0.7);
-  color: #333;
-}
-
-.primary-button.secondary:hover {
-  background-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}

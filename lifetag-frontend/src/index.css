@@ -1,5 +1,7 @@
 /* src/index.css */
 
+/* src/index.css */
+
 /* 1. Global Setup */
 body {
   margin: 0;
@@ -12,17 +14,21 @@ body {
   /* Our "very light green" background */
   background-color: #F8FFF8;
   
-  /* Center all content */
+  /* Remove the centering and padding-bottom */
   min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* This is where our login/register cards will be centered */
+.centered-page-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 100vh;
   padding: 2rem;
-
-  padding-bottom: 120px;
-  
   box-sizing: border-box;
 }
+
 
 /* 2. Our Reusable "Liquid Glass" Card */
 .glass-card {
@@ -40,25 +46,37 @@ body {
 }
 
 /* 3. Our "Light Green" Button */
+/* 3. Our "Primary" Button */
 .primary-button {
-  background-color: #98FB98; /* Light Green */
-  border: none;
+  background-color: #FFFFFF; /* Solid White */
+  color: #111; /* Dark Text */
+  border: 1px solid transparent; /* Prepare for hover border */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  
   border-radius: 10px;
   padding: 14px 24px;
-  color: #111; /* Darker text for readability */
   font-weight: bold;
   font-size: 1rem;
   cursor: pointer;
   width: 100%;
-  transition: all 0.2s ease-in-out;
-  text-decoration: none; /* For <Link> elements */
-  display: inline-block; /* For <Link> elements */
-  box-sizing: border-box; /* For <Link> elements */
+  transition: all 0.2s ease-in-out; /* Smooth hover */
+  text-decoration: none; 
+  display: inline-block; 
+  box-sizing: border-box;
 }
 
 .primary-button:hover {
-  transform: scale(1.02); /* More subtle zoom */
-  box-shadow: 0 4px 20px rgba(152, 251, 152, 0.5); /* Green "glow" */
+  transform: scale(1.02); 
+  background: rgba(255, 255, 255, 0.2); /* Translucent glass */
+  color: #FFFFFF; /* White Text */
+  border: 1px solid rgba(255, 255, 255, 0.5); /* Brighter border */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* This is the "Smooth Click" effect */
+.primary-button:active {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
 }
 
 /* 4. Modern Form Inputs */
@@ -74,7 +92,7 @@ body {
 }
 
 .modern-input:focus {
-  outline: 2px solid #98FB98;
+  outline: 2px solid #FFFFFF; /* White outline */
   border: 1px solid transparent;
 }
 
@@ -112,4 +130,23 @@ body {
   padding: 10px;
   margin-bottom: 1rem;
   font-size: 0.9rem;
+}
+
+/* Add this new style block */
+.glass-card.dark {
+  background: rgba(40, 40, 40, 0.35); /* Dark grey glass */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  color: #FFFFFF; /* Makes all text inside white */
+}
+
+/* This makes links look good on the dark card */
+.glass-card.dark a {
+  color: #000000; /* Use the blue we picked earlier */
+  font-weight: bold;
+}
+
+/* This makes form labels white */
+.glass-card.dark label {
+  color: #FFFFFF;
 }

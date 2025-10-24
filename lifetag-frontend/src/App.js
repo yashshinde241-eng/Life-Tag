@@ -1,12 +1,10 @@
+// src/App.js
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-
-// We need to export a wrapped App to use the 'auth' hook
-// THIS LINE WAS MOVED FROM THE BOTTOM TO THE TOP
 import { AuthProvider, useAuth } from './components/context/AuthContext';
 
 // Import Layouts
-import LayoutWithNavbar from './components/LayoutWithNavbar';
+import MainLayout from './components/MainLayout'; // Our new layout!
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Import Public Pages
@@ -36,17 +34,23 @@ import './index.css';
 function App() {
   const { auth } = useAuth(); // Get auth to decide routes
 
+  // We wrap public routes in the centering class from index.css
+  const publicRouteWrapper = (element) => (
+    <div className="centered-page-wrapper">{element}</div>
+  );
+
   return (
     <BrowserRouter>
       <Routes>
         {/* --- 1. PUBLIC ROUTES --- */}
-        <Route path="/" element={<Welcome />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route path="/" element={publicRouteWrapper(<Welcome />)} />
+        <Route path="/login" element={publicRouteWrapper(<Login />)} />
+        <Route path="/register" element={publicRouteWrapper(<Register />)} />
 
         {/* --- 2. PROTECTED ROUTES --- */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<LayoutWithNavbar />}>
+          {/* All protected routes render inside MainLayout */}
+          <Route element={<MainLayout />}>
             {/* Core Pages (both roles) */}
             <Route path="/dashboard" element={<DashboardWrapper />} />
             <Route path="/profile" element={<ProfilePage />} />
@@ -75,8 +79,6 @@ function App() {
     </BrowserRouter>
   );
 }
-
-// THIS IMPORT LINE WAS DELETED FROM HERE
 
 const AppWrapper = () => (
   <AuthProvider>

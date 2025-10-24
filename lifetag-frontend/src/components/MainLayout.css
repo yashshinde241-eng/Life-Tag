@@ -1,0 +1,31 @@
+/* src/components/MainLayout.css */
+.app-layout {
+  display: flex;
+}
+
+/* src/components/MainLayout.css */
+/* src/components/MainLayout.css */
+.content-area {
+  flex-grow: 1;
+  margin-left: 260px; /* Space for the sidebar */
+  padding: 2.5rem;
+  box-sizing: border-box;
+  min-height: 100vh;
+
+  margin-top: 2rem;
+  margin-right: 2rem;
+  margin-bottom: 2rem;
+  border-radius: 20px;
+  min-height: calc(100vh - 4rem); 
+
+  /* --- THIS IS THE NEW DARK GLASS --- */
+  background: rgba(40, 40, 40, 0.35); /* Dark grey, semi-transparent */
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Lighter border for contrast */
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); /* Darker shadow */
+  /* ------------------------------------- */
+
+  /* --- NEW: Make all text inside white by default --- */
+  color: #FFFFFF;
+}
