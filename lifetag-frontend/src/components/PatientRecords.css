@@ -23,9 +23,12 @@
   transition: all 0.2s ease;
 }
 
-.record-item:hover {
+.record-item.clickable:hover {
   transform: translateY(-5px) scale(1.02);
   box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+  
+  /* This makes it look clickable */
+  cursor: pointer;
 }
 
 .record-icon {

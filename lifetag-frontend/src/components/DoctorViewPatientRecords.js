@@ -1,53 +1,50 @@
+// src/components/DoctorViewPatientRecords.js
 import React, { useState } from 'react';
 import apiClient from '../api';
 import { useAuth } from './context/AuthContext';
-// We can reuse the patient's record styles!
-import './PatientRecords.css'; 
+import './PatientRecords.css'; // Reuse patient styles
+import FileViewerModal from './FileViewerModal'; // 1. Import the modal
 
 const DoctorViewPatientRecords = () => {
   const [patientId, setPatientId] = useState('');
   const [records, setRecords] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false); // To show "no records" msg
+  const [hasSearched, setHasSearched] = useState(false);
   const { auth } = useAuth();
+  
+  // 2. Add state for the modal
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   const handleViewRecords = async (e) => {
+    // ... (handleViewRecords logic is unchanged) ...
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setRecords([]); // Clear previous records
+    setRecords([]);
     setHasSearched(false);
-
     if (!patientId) {
       setError('Patient ID is required.');
       setLoading(false);
       return;
     }
-
     try {
-      // 1. Check for access first
       const checkResponse = await apiClient.get(
         `/access/check/${auth.id}/${patientId}`, {
           headers: { Authorization: `Bearer ${auth.token}` },
         }
       );
-
       if (checkResponse.data.hasAccess) {
-        // 2. If access is true, fetch the records
         const recordsResponse = await apiClient.get(
           `/records/patient/${patientId}`, {
             headers: { Authorization: `Bearer ${auth.token}` },
           }
         );
-        
         setRecords(recordsResponse.data);
-        setHasSearched(true); // We've completed a search
+        setHasSearched(true);
       } else {
-        // 3. No access
         setError('Access is not active or has expired for this patient.');
       }
-      
       setLoading(false);
     } catch (err) {
       console.error('Error viewing records:', err);
@@ -60,8 +57,8 @@ const DoctorViewPatientRecords = () => {
     <div className="glass-card" style={{ textAlign: 'left' }}>
       <h3 style={{ textAlign: 'center', marginTop: 0 }}>View Patient Records</h3>
       
-      {/* 4. The Form */}
       <form onSubmit={handleViewRecords}>
+        {/* ... (form is unchanged) ... */}
         <label>Patient ID</label>
         <input
           type="number"
@@ -82,18 +79,19 @@ const DoctorViewPatientRecords = () => {
         </button>
       </form>
 
-      {/* 5. The Read-Only Records List */}
       <div className="records-list" style={{ marginTop: '2rem' }}>
         {records.length > 0 ? (
           records.map((record) => (
-            // We use the exact same styles as the patient dashboard
-            <div key={record.id} className="record-item">
+            // 3. Make the item clickable
+            <div 
+              key={record.id} 
+              className="record-item clickable" // Added 'clickable'
+              onClick={() => setSelectedRecord(record)} // Set the record
+            >
               <div className="record-icon">📄</div>
               <div className="record-details">
                 <strong>{record.fileName}</strong>
                 <span>Type: {record.recordType || 'N/A'}</span>
-                {/* Note: The API doesn't seem to return the doctor
-                    when another doctor requests it, so we'll be safe. */}
                 <span>Uploaded by: Dr. {record.doctor?.fullName || 'Unknown'}</span>
               </div>
               <div className="record-date">
@@ -102,10 +100,17 @@ const DoctorViewPatientRecords = () => {
             </div>
           ))
         ) : (
-          // Only show this *after* a search
           hasSearched && <p style={{textAlign: 'center'}}>No records found for this patient.</p>
         )}
       </div>
+
+      {/* 4. Render the modal if a record is selected */}
+      {selectedRecord && (
+        <FileViewerModal 
+          record={selectedRecord} 
+          onClose={() => setSelectedRecord(null)} // Function to close
+        />
+      )}
     </div>
   );
 };

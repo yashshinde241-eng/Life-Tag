@@ -3,12 +3,16 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../api';
 import { useAuth } from './context/AuthContext';
 import './PatientRecords.css';
+import FileViewerModal from './FileViewerModal'; // 1. Import the modal
 
 const PatientRecords = () => {
   const [records, setRecords] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const { auth } = useAuth();
+  
+  // 2. Add state for the modal
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     // ... (useEffect logic is unchanged) ...
@@ -27,14 +31,13 @@ const PatientRecords = () => {
       } catch (err) {
         console.error('Error fetching records:', err);
         setError(err.response?.data?.message || 'Failed to fetch records.');
-        setLoading(false);
       }
     };
     fetchRecords();
   }, [auth]);
 
   if (loading) {
-    return <p>Loading records...</p>; // Simplified
+    return <p>Loading records...</p>;
   }
 
   if (error) {
@@ -42,7 +45,6 @@ const PatientRecords = () => {
   }
 
   return (
-    /* We removed the outer .glass-card */
     <>
       <h2 className="page-header">My Medical Records</h2>
       
@@ -51,7 +53,12 @@ const PatientRecords = () => {
       ) : (
         <div className="records-list">
           {records.map((record) => (
-            <div key={record.id} className="record-item">
+            // 3. Make the item clickable
+            <div 
+              key={record.id} 
+              className="record-item clickable" // Added 'clickable'
+              onClick={() => setSelectedRecord(record)} // Set the record
+            >
               <div className="record-icon">📄</div>
               <div className="record-details">
                 <strong>{record.fileName}</strong>
@@ -64,6 +71,14 @@ const PatientRecords = () => {
             </div>
           ))}
         </div>
+      )}
+
+      {/* 4. Render the modal if a record is selected */}
+      {selectedRecord && (
+        <FileViewerModal 
+          record={selectedRecord} 
+          onClose={() => setSelectedRecord(null)} // Function to close
+        />
       )}
     </>
   );
