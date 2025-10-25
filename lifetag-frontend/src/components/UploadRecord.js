@@ -1,35 +1,34 @@
+// src/components/UploadRecord.js
 import React, { useState } from 'react';
 import apiClient from '../api';
 import { useAuth } from './context/AuthContext';
-import './UploadRecord.css'; // We'll create this
+import './UploadRecord.css';
+import ConfirmationModal from './ConfirmationModal'; // 1. Import modal
 
 const UploadRecord = () => {
   const [patientId, setPatientId] = useState('');
   const [recordType, setRecordType] = useState('');
-  const [file, setFile] = useState(null); // State for the file itself
+  const [file, setFile] = useState(null); 
   
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const { auth } = useAuth();
+  
+  // 2. Add state to control the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleFileChange = (e) => {
-    setFile(e.target.files[0]); // Get the first file
+    setFile(e.target.files[0]);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // 3. This is the new "confirm" function
+  const handleConfirmUpload = async () => {
+    setIsModalOpen(false);
     setLoading(true);
     setError(null);
     setSuccess(null);
 
-    if (!patientId || !file) {
-      setError('Patient ID and a file are required.');
-      setLoading(false);
-      return;
-    }
-
-    // 1. We must use FormData for file uploads
     const formData = new FormData();
     formData.append('patientId', patientId);
     formData.append('file', file);
@@ -38,21 +37,20 @@ const UploadRecord = () => {
     }
 
     try {
-      // 2. Make the API call
       await apiClient.post('/records/upload', formData, {
         headers: {
           'Authorization': `Bearer ${auth.token}`,
-          'Content-Type': 'multipart/form-data', // This header is crucial
+          'Content-Type': 'multipart/form-data',
         },
       });
 
-      // 3. Show success message
       setLoading(false);
       setSuccess(`Record uploaded successfully for Patient ID: ${patientId}.`);
       setPatientId('');
       setRecordType('');
       setFile(null);
-      e.target.reset(); // Reset the form fields
+      // Reset the file input (requires a form)
+      document.getElementById('upload-form').reset(); 
 
     } catch (err) {
       console.error('Error uploading record:', err);
@@ -60,11 +58,27 @@ const UploadRecord = () => {
       setError(err.response?.data?.message || 'Failed to upload record. Do you have active access?');
     }
   };
+  
+  // 4. This function now *opens* the modal
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!patientId || !file) {
+      setError('Patient ID and a file are required.');
+      return;
+    }
+    
+    // Just open the modal
+    setIsModalOpen(true);
+  };
 
   return (
-    <div className="glass-card" style={{ textAlign: 'left' }}>
+    <div className="glass-card" style={{ textAlign: 'left', color: '#FFF' }}>
       <h3 style={{ textAlign: 'center', marginTop: 0 }}>Upload Medical Record</h3>
-      <form onSubmit={handleSubmit}>
+      {/* 5. Give the form an ID so we can reset it */}
+      <form id="upload-form" onSubmit={handleSubmit}>
         <label>Patient ID</label>
         <input
           type="number"
@@ -90,12 +104,11 @@ const UploadRecord = () => {
         <input
           type="file"
           name="file"
-          className="modern-input file-input" // Special class for file input
+          className="modern-input file-input"
           onChange={handleFileChange}
           required
         />
 
-        {/* 4. Show Success or Error Messages */}
         {error && (
           <div className="error-message">
             {error}
@@ -116,10 +129,19 @@ const UploadRecord = () => {
           </div>
         )}
 
-        <button type="submit" className="primary-button" disabled={loading}>
+        <button type="submit" className="primary-button" disabled={loading || isModalOpen}>
           {loading ? 'Uploading...' : 'Upload Record'}
         </button>
       </form>
+      
+      {/* 6. Render the modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmUpload}
+        title="Confirm Upload"
+        message={`Are you sure you want to upload "${file?.name}" for Patient ID: ${patientId}?`}
+      />
     </div>
   );
 };

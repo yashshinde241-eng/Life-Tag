@@ -1,45 +1,41 @@
+// src/components/RequestAccess.js
 import React, { useState } from 'react';
 import apiClient from '../api';
 import { useAuth } from './context/AuthContext';
+import ConfirmationModal from './ConfirmationModal'; // 1. Import modal
 
 const RequestAccess = () => {
   const [patientId, setPatientId] = useState('');
   const [notes, setNotes] = useState('');
   
   const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null); // For success message
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const { auth } = useAuth();
+  
+  // 2. Add state to control the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // 3. This is the new "confirm" function
+  const handleConfirmRequest = async () => {
+    setIsModalOpen(false); // Close modal
     setLoading(true);
     setError(null);
     setSuccess(null);
 
-    if (!patientId) {
-      setError('Patient ID is required.');
-      setLoading(false);
-      return;
-    }
-
     try {
       const payload = {
-        patientId: parseInt(patientId, 10), // Ensure it's a number
-        notes: notes || undefined, // Send undefined if empty
+        patientId: parseInt(patientId, 10),
+        notes: notes || undefined,
       };
 
-      // 1. Make the API call
       await apiClient.post('/access/request', payload, {
-        headers: {
-          Authorization: `Bearer ${auth.token}`,
-        },
+        headers: { Authorization: `Bearer ${auth.token}` },
       });
 
-      // 2. Show success message
       setLoading(false);
       setSuccess(`Access requested for Patient ID: ${patientId}.`);
-      setPatientId(''); // Clear the form
+      setPatientId('');
       setNotes('');
 
     } catch (err) {
@@ -49,8 +45,23 @@ const RequestAccess = () => {
     }
   };
 
+  // 4. This function now *opens* the modal instead of sending the API call
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!patientId) {
+      setError('Patient ID is required.');
+      return;
+    }
+    
+    // Just open the modal
+    setIsModalOpen(true);
+  };
+
   return (
-    <div className="glass-card" style={{ textAlign: 'left' }}>
+    <div className="glass-card" style={{ textAlign: 'left', color: '#FFF' }}>
       <h3 style={{ textAlign: 'center', marginTop: 0 }}>Request Patient Access</h3>
       <form onSubmit={handleSubmit}>
         <label>Patient ID</label>
@@ -74,7 +85,6 @@ const RequestAccess = () => {
           onChange={(e) => setNotes(e.target.value)}
         />
 
-        {/* 3. Show Success or Error Messages */}
         {error && (
           <div className="error-message">
             {error}
@@ -95,10 +105,20 @@ const RequestAccess = () => {
           </div>
         )}
 
-        <button type="submit" className="primary-button" disabled={loading}>
-          {loading ? 'Sending Request...' : 'Request Access'}
+        {/* 5. The submit button is now "disabled" by the modal, not just "loading" */}
+        <button type="submit" className="primary-button" disabled={loading || isModalOpen}>
+          {loading ? 'Sending...' : 'Request Access'}
         </button>
       </form>
+
+      {/* 6. Render the modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmRequest}
+        title="Confirm Access Request"
+        message={`Are you sure you want to request access for Patient ID: ${patientId}?`}
+      />
     </div>
   );
 };
