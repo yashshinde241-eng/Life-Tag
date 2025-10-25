@@ -1,7 +1,8 @@
+// src/components/PatientRecords.js
 import React, { useState, useEffect } from 'react';
 import apiClient from '../api';
 import { useAuth } from './context/AuthContext';
-import './PatientRecords.css'; // We will create this file
+import './PatientRecords.css';
 
 const PatientRecords = () => {
   const [records, setRecords] = useState([]);
@@ -10,22 +11,17 @@ const PatientRecords = () => {
   const { auth } = useAuth();
 
   useEffect(() => {
+    // ... (useEffect logic is unchanged) ...
     const fetchRecords = async () => {
       if (!auth?.token) {
         setLoading(false);
         setError('No authentication token found.');
         return;
       }
-
       try {
-        // 1. Make the API call
         const response = await apiClient.get('/records/patient', {
-          headers: {
-            Authorization: `Bearer ${auth.token}`,
-          },
+          headers: { Authorization: `Bearer ${auth.token}` },
         });
-        
-        // 2. Save the list of records
         setRecords(response.data);
         setLoading(false);
       } catch (err) {
@@ -34,36 +30,22 @@ const PatientRecords = () => {
         setLoading(false);
       }
     };
-
     fetchRecords();
-  }, [auth]); // Re-run if auth state changes
+  }, [auth]);
 
-  // 3. Render loading state
   if (loading) {
-    return (
-      <div className="glass-card">
-        <h3>My Medical Records</h3>
-        <p>Loading records...</p>
-      </div>
-    );
+    return <p>Loading records...</p>; // Simplified
   }
 
-  // 4. Render error state
   if (error) {
-    return (
-      <div className="glass-card">
-        <h3>My Medical Records</h3>
-        <p className="error-message">{error}</p>
-      </div>
-    );
+    return <p className="error-message">{error}</p>;
   }
 
-  // 5. Render the list of records
   return (
-    <div className="glass-card">
-      <h3 style={{ marginTop: 0 }}>My Medical Records</h3>
+    /* We removed the outer .glass-card */
+    <>
+      <h2 className="page-header">My Medical Records</h2>
       
-      {/* Check if the list is empty */}
       {records.length === 0 ? (
         <p>No medical records found.</p>
       ) : (
@@ -83,7 +65,7 @@ const PatientRecords = () => {
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

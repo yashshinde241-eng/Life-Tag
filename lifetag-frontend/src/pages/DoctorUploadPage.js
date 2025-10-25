@@ -3,7 +3,7 @@ import UploadRecord from '../components/UploadRecord';
 import './PageWrapper.css';
 
 const DoctorUploadPage = () => (
-  <div className="page-wrapper">
+  <div className="page-wrapper center-content">
     <UploadRecord />
   </div>
 );

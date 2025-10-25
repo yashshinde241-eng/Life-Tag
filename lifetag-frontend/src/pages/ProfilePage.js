@@ -63,7 +63,7 @@ const ProfilePage = () => {
 
   // Render the correct profile based on role
   return (
-    <div className="page-wrapper">
+    <div className="page-wrapper center-content">
       <div className="glass-card" style={{ textAlign: 'left', maxWidth: '420px' }}>
         <h3 style={{ textAlign: 'center', marginTop: 0 }}>My Profile</h3>
         

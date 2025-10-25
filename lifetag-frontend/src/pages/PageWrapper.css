@@ -3,5 +3,22 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  /* No more centering or max-width needed here */
+}
+
+/* This is for pages like "My Records" */
+.page-header {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin: 0 0 2rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* This is for "empty" pages like Profile */
+.page-wrapper.center-content {
+  /* This will be 100% of the grey canvas height */
+  height: calc(100vh - 4rem - 5rem); /* 100vh - (margins) - (paddings) */
+  align-items: center;
+  justify-content: center;
 }

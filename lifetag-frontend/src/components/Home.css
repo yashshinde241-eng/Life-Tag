@@ -29,8 +29,16 @@
   color: #E0E0E0;;
 }
 
-.shortcut-grid {
+.shortcut-grid-doctor{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  /* This rule creates a FIXED 3-column grid */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.shortcut-grid-patient {
+  display: grid;
+  /* This rule creates a FIXED 2-column grid */
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
 }

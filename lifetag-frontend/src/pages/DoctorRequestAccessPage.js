@@ -3,7 +3,7 @@ import RequestAccess from '../components/RequestAccess';
 import './PageWrapper.css';
 
 const DoctorRequestAccessPage = () => (
-  <div className="page-wrapper">
+  <div className="page-wrapper center-content">
     <RequestAccess />
   </div>
 );

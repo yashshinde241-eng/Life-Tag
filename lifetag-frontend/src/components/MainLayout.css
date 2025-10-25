@@ -7,7 +7,7 @@
 /* src/components/MainLayout.css */
 .content-area {
   flex-grow: 1;
-  margin-left: 260px; /* Space for the sidebar */
+  margin-left: calc(260px + 2rem); /* Space for the sidebar */
   padding: 2.5rem;
   box-sizing: border-box;
   min-height: 100vh;

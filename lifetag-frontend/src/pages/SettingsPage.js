@@ -2,7 +2,7 @@ import React from 'react';
 import './PageWrapper.css';
 
 const SettingsPage = () => (
-  <div className="page-wrapper">
+  <div className="page-wrapper center-content">
     <div className="glass-card">
       <h2>Settings</h2>
       <p>This page will hold app settings. Coming soon!</p>

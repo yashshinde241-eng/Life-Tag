@@ -3,7 +3,7 @@ import DoctorViewPatientRecords from '../components/DoctorViewPatientRecords';
 import './PageWrapper.css';
 
 const DoctorViewRecordsPage = () => (
-  <div className="page-wrapper">
+  <div className="page-wrapper center-content">
     <DoctorViewPatientRecords />
   </div>
 );

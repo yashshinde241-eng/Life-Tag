@@ -1,5 +1,7 @@
+// src/components/PatientDashboard.js
 import React from 'react';
 import WelcomeHeader from './WelcomeHeader';
+import ShortcutCard from './ShortcutCard'; // Import
 import './Home.css';
 
 const PatientDashboard = () => {
@@ -7,9 +9,12 @@ const PatientDashboard = () => {
     <div className="home-container">
       <WelcomeHeader />
       
-      {/* We can add shortcut cards here later */}
-      <div className="shortcut-grid">
-        {/* Example:
+      <div className="shortcut-grid-patient">
+        <ShortcutCard 
+          title="My Profile" 
+          icon="👤" 
+          to="/profile" 
+        />
         <ShortcutCard 
           title="My Records" 
           icon="🩺" 
@@ -20,7 +25,11 @@ const PatientDashboard = () => {
           icon="🔔" 
           to="/my-requests" 
         />
-        */}
+        <ShortcutCard 
+          title="Settings" 
+          icon="⚙️" 
+          to="/settings" 
+        />
       </div>
     </div>
   );
