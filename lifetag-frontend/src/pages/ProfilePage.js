@@ -76,9 +76,7 @@ const ProfilePage = () => {
           <>
             <p><strong>Age:</strong> {profile.age || 'N/A'}</p>
             <p><strong>Gender:</strong> {profile.gender || 'N/A'}</p>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
-              <strong>Patient ID:</strong> {profile.id}
-            </p>
+            <p><strong>Patient ID:</strong> {profile.patientTagId}</p>
           </>
         )}
         

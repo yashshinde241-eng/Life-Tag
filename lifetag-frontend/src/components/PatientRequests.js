@@ -1,16 +1,16 @@
 // src/components/PatientRequests.js
-import React, { useState, useEffect, useCallback } from 'react';
-import apiClient from '../api';
-import { useAuth } from './context/AuthContext';
-import './PatientRequests.css'; 
-import CountdownTimer from './CountdownTimer';
-import ConfirmationModal from './ConfirmationModal'; // Import modal
+import React, { useState, useEffect, useCallback } from "react";
+import apiClient from "../api";
+import { useAuth } from "./context/AuthContext";
+import "./PatientRequests.css";
+import CountdownTimer from "./CountdownTimer";
+import ConfirmationModal from "./ConfirmationModal"; // Import modal
 
 const PatientRequests = () => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [activeSessions, setActiveSessions] = useState([]);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Start loading initially
   const [actionLoading, setActionLoading] = useState(null);
   const { auth } = useAuth();
 
@@ -19,123 +19,165 @@ const PatientRequests = () => {
     isOpen: false,
     requestId: null,
     action: null, // 'approve', 'reject', or 'end'
-    message: '',
-    title: '', // Added title for the modal
+    message: "",
+    title: "", // Added title for the modal
   });
 
+  // Function to fetch records
   const fetchRequests = useCallback(async () => {
-    if (!auth?.token || !auth?.id) {
-      // Don't reset loading if polling, just return
-      if(loading) setLoading(false); 
-      setError('User not authenticated.');
-      return;
+    // Check if auth context is ready and has the necessary info
+    if (!auth?.token || !auth?.tagId) {
+      // Don't repeatedly set error if polling while logged out or context not ready
+      if (loading) { // <-- Reads 'loading' state
+          setError(!auth?.tagId ? 'Patient Tag ID not found in auth context.' : 'User not authenticated.');
+          setLoading(false);
+      }
+      return; // Exit if not authenticated
     }
 
-    // Only show full loading on initial fetch
-    if (!pendingRequests.length && !activeSessions.length) {
-        setLoading(true);
-    }
+    // Set loading state only if it's not already loading (avoids flicker during polling)
+    setLoading(true); // Set loading state
 
     try {
-      const response = await apiClient.get(`/access/patient/${auth.id}`, {
-        headers: { Authorization: `Bearer ${auth.token}` },
-      });
+      // Fetch requests using the patient's tag ID
+      const response = await apiClient.get(
+        `/access/patient/tag/${auth.tagId}`,
+        {
+          headers: { Authorization: `Bearer ${auth.token}` },
+        }
+      );
+
+      // Process the response data
       const now = new Date();
       const allRequests = response.data;
-      const pending = allRequests.filter((req) => req.status === 'pending');
-      const active = allRequests.filter((req) => 
-        req.status === 'approved' && new Date(req.expiresAt) > now
+
+      // Filter requests into pending and active lists
+      const pending = allRequests.filter((req) => req.status === "pending");
+      const active = allRequests.filter(
+        (req) =>
+          req.status === "approved" &&
+          req.expiresAt &&
+          new Date(req.expiresAt) > now // Added check for req.expiresAt
       );
+
+      // Update state with the fetched and filtered requests
       setPendingRequests(pending);
       setActiveSessions(active);
-      setError(null); // Clear previous errors on successful fetch
+      setError(null); // Clear any previous errors on successful fetch
     } catch (err) {
       console.error('Error fetching requests:', err);
-      setError(err.response?.data?.message || 'Failed to fetch requests.');
+      // Set error state only if it's different from the current error to avoid re-renders
+      const newError = err.response?.data?.message || 'Failed to fetch requests.';
+      if (error !== newError) { // <-- Reads 'error' state
+          setError(newError);
+      }
     } finally {
-        // Always set loading to false after fetch attempt
-        setLoading(false);
+      // Ensure loading is set to false after every fetch attempt
+      setLoading(false);
     }
-  }, [auth, loading, pendingRequests.length, activeSessions.length]); // Dependencies for fetchRequests
+  // --- CORRECTED DEPENDENCY ARRAY ---
+  // Add 'error' and 'loading'
+  }, [auth, error, loading]);
+  // --- END CORRECTION ---
 
+  // useEffect hook to fetch data on mount and set up polling
   useEffect(() => {
-    fetchRequests(); // Fetch on initial load
-    // Set up polling interval
-    const intervalId = setInterval(fetchRequests, 5000); // Poll every 5 seconds
-    // Cleanup interval on component unmount
+    fetchRequests(); // Fetch immediately when component mounts or fetchRequests changes
+    // Set up interval to poll for new data every 5 seconds
+    const intervalId = setInterval(fetchRequests, 5000);
+    // Cleanup function to clear interval when component unmounts
     return () => clearInterval(intervalId);
-  }, [fetchRequests]); // Rerun effect if fetchRequests changes
+  }, [fetchRequests]); // Dependency array includes fetchRequests
 
-  // Function to open the modal with specific details
+  // Function to open the confirmation modal
   const openConfirmation = (requestId, action, title, message) => {
     setModalState({ isOpen: true, requestId, action, title, message });
   };
-  // Function to close the modal
+  // Function to close the confirmation modal
   const closeModal = () => {
-    setModalState({ isOpen: false, requestId: null, action: null, title: '', message: '' });
+    setModalState({
+      isOpen: false,
+      requestId: null,
+      action: null,
+      title: "",
+      message: "",
+    });
   };
 
-  // Function called when user clicks "Confirm" in the modal
+  // Function to handle the confirmed action (Approve, Reject, End Session)
   const handleConfirmAction = async () => {
     const { requestId, action } = modalState;
-    if (!requestId || !action) return;
+    if (!requestId || !action) return; // Exit if modal state is invalid
 
-    setActionLoading(requestId); // Show loading on the specific item
-    setError(null);
-    closeModal(); // Close modal immediately
+    setActionLoading(requestId); // Set loading state for the specific button
+    setError(null); // Clear previous errors
+    closeModal(); // Close the modal
 
     try {
-      if (action === 'end') {
-        // End Session logic
-        await apiClient.put(`/access/end/${requestId}`, { action: 'end' }, {
-          headers: { Authorization: `Bearer ${auth.token}` },
-        });
+      // Perform API call based on the action
+      if (action === "end") {
+        // API call to end the session
+        await apiClient.put(
+          `/access/end/${requestId}`,
+          { action: "end" },
+          {
+            headers: { Authorization: `Bearer ${auth.token}` },
+          }
+        );
       } else {
-        // Approve/Reject logic
+        // API call to approve or reject the request
         const payload = { action };
-        if (action === 'approve') {
-          payload.durationMinutes = 30; // 30 min duration
+        if (action === "approve") {
+          payload.durationMinutes = 30; // Set duration for approval
         }
         await apiClient.put(`/access/respond/${requestId}`, payload, {
           headers: { Authorization: `Bearer ${auth.token}` },
         });
       }
-      // Success! Fetch the updated list
-      fetchRequests(); 
+      // Success: Immediately fetch the updated list of requests
+      fetchRequests();
     } catch (err) {
       console.error(`Error ${action}ing request:`, err);
+      // Set error state based on API response or default message
       setError(err.response?.data?.message || `Failed to ${action} request.`);
     } finally {
-      setActionLoading(null); // Stop loading indicator
+      setActionLoading(null); // Clear loading state for the button
     }
   };
 
-  // Show loading indicator only on initial load
+  // --- Render Logic ---
+  // Show loading message only during the very initial load
   if (loading && !pendingRequests.length && !activeSessions.length) {
-     // Use color: '#FFF' for visibility on dark background
-    return <p style={{color: '#FFF'}}>Loading requests...</p>;
+    return <p style={{ color: "#FFF" }}>Loading requests...</p>;
   }
-  
-  // Show error message if fetch failed
+
+  // Show error message if fetch failed and there's no data to display
   if (error && !pendingRequests.length && !activeSessions.length) {
-    return <p className="error-message" style={{color: '#FFF'}}>{error}</p>;
+    return (
+      <p className="error-message" style={{ color: "#FFF" }}>
+        {error}
+      </p>
+    );
   }
 
   return (
-    // Render the two sections: Active Sessions and Pending Requests
+    // Use React Fragment to return multiple top-level elements (the two cards)
     <>
       {/* 1. Active Sessions Card */}
       <div className="glass-card">
-        <h3 style={{ marginTop: 0, color: '#111' }}>Active Sessions</h3>
+        <h3 style={{ marginTop: 0, color: "#111" }}>Active Sessions</h3>
         {activeSessions.length === 0 ? (
-          <p style={{color: '#555'}}>No active sessions.</p>
+          <p style={{ color: "#555" }}>No active sessions.</p>
         ) : (
           <div className="requests-list">
             {activeSessions.map((req) => (
               <div key={req.id} className="request-item">
                 <div className="request-details">
-                  <strong>Dr. {req.Doctor.fullName}</strong>
-                  <span>{req.Doctor.specialization}</span>
+                  {/* Safely access doctor info */}
+                  <strong>
+                    Dr. {req.Doctor?.fullName || "Unknown Doctor"}
+                  </strong>
+                  <span>{req.Doctor?.specialization || "N/A"}</span>
                   {/* Display countdown timer for active session */}
                   <CountdownTimer
                     expiresAt={req.expiresAt}
@@ -147,7 +189,14 @@ const PatientRequests = () => {
                   <button
                     className="action-button end-session"
                     // Open confirmation modal on click
-                    onClick={() => openConfirmation(req.id, 'end', 'Confirm End Session', 'Are you sure you want to end this session now?')}
+                    onClick={() =>
+                      openConfirmation(
+                        req.id,
+                        "end",
+                        "Confirm End Session",
+                        "Are you sure you want to end this session now?"
+                      )
+                    }
                     disabled={actionLoading === req.id} // Disable button while action is loading
                   >
                     {actionLoading === req.id ? "..." : "End Session Now"}
@@ -161,16 +210,28 @@ const PatientRequests = () => {
 
       {/* 2. Pending Requests Card */}
       <div className="glass-card">
-        <h3 style={{ marginTop: 0, color: '#111' }}>Pending Access Requests</h3>
+        <h3 style={{ marginTop: 0, color: "#111" }}>Pending Access Requests</h3>
+        {/* Display overall error here if polling fails after initial load */}
+        {error && (pendingRequests.length > 0 || activeSessions.length > 0) && (
+          <p
+            className="error-message"
+            style={{ color: "#111", marginBottom: "1rem" }}
+          >
+            {error}
+          </p>
+        )}
         {pendingRequests.length === 0 ? (
-          <p style={{color: '#555'}}>No pending access requests.</p>
+          <p style={{ color: "#555" }}>No pending access requests.</p>
         ) : (
           <div className="requests-list">
             {pendingRequests.map((req) => (
               <div key={req.id} className="request-item">
                 <div className="request-details">
-                  <strong>Dr. {req.Doctor.fullName}</strong>
-                  <span>{req.Doctor.specialization}</span>
+                  {/* Safely access doctor info */}
+                  <strong>
+                    Dr. {req.Doctor?.fullName || "Unknown Doctor"}
+                  </strong>
+                  <span>{req.Doctor?.specialization || "N/A"}</span>
                   <span className="notes">
                     Notes: "{req.notes || "No notes provided."}"
                   </span>
@@ -180,7 +241,14 @@ const PatientRequests = () => {
                   <button
                     className="action-button reject"
                     // Open confirmation modal on click
-                    onClick={() => openConfirmation(req.id, 'reject', 'Confirm Rejection', 'Are you sure you want to REJECT this access request?')}
+                    onClick={() =>
+                      openConfirmation(
+                        req.id,
+                        "reject",
+                        "Confirm Rejection",
+                        "Are you sure you want to REJECT this access request?"
+                      )
+                    }
                     disabled={actionLoading === req.id} // Disable button while action is loading
                   >
                     {actionLoading === req.id ? "..." : "Reject"}
@@ -189,7 +257,14 @@ const PatientRequests = () => {
                   <button
                     className="action-button approve"
                     // Open confirmation modal on click
-                    onClick={() => openConfirmation(req.id, 'approve', 'Confirm Approval', 'Are you sure you want to APPROVE access for 30 minutes?')}
+                    onClick={() =>
+                      openConfirmation(
+                        req.id,
+                        "approve",
+                        "Confirm Approval",
+                        "Are you sure you want to APPROVE access for 30 minutes?"
+                      )
+                    }
                     disabled={actionLoading === req.id} // Disable button while action is loading
                   >
                     {actionLoading === req.id ? "..." : "Approve"}

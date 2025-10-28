@@ -6,7 +6,7 @@ import './UploadRecord.css';
 import ConfirmationModal from './ConfirmationModal'; // 1. Import modal
 
 const UploadRecord = () => {
-  const [patientId, setPatientId] = useState('');
+  const [patientTagId, setPatientTagId] = useState('');
   const [recordType, setRecordType] = useState('');
   const [file, setFile] = useState(null); 
   
@@ -30,7 +30,9 @@ const UploadRecord = () => {
     setSuccess(null);
 
     const formData = new FormData();
-    formData.append('patientId', patientId);
+    // --- CHANGE: Append patientTagId ---
+    formData.append('patientTagId', patientTagId); // Send tag ID
+    // --- END CHANGE ---
     formData.append('file', file);
     if (recordType) {
       formData.append('recordType', recordType);
@@ -45,8 +47,8 @@ const UploadRecord = () => {
       });
 
       setLoading(false);
-      setSuccess(`Record uploaded successfully for Patient ID: ${patientId}.`);
-      setPatientId('');
+      setSuccess(`Record uploaded successfully for Patient ID: ${patientTagId}.`);
+      setPatientTagId('');
       setRecordType('');
       setFile(null);
       // Reset the file input (requires a form)
@@ -65,7 +67,7 @@ const UploadRecord = () => {
     setError(null);
     setSuccess(null);
 
-    if (!patientId || !file) {
+    if (!patientTagId || !file) {
       setError('Patient ID and a file are required.');
       return;
     }
@@ -85,8 +87,8 @@ const UploadRecord = () => {
           name="patientId"
           placeholder="Enter Patient ID"
           className="modern-input"
-          value={patientId}
-          onChange={(e) => setPatientId(e.target.value)}
+          value={patientTagId}
+          onChange={(e) => setPatientTagId(e.target.value)}
           required
         />
         
@@ -140,7 +142,7 @@ const UploadRecord = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmUpload}
         title="Confirm Upload"
-        message={`Are you sure you want to upload "${file?.name}" for Patient ID: ${patientId}?`}
+        message={`Are you sure you want to upload "${file?.name}" for Patient ID: ${patientTagId}?`}
       />
     </div>
   );

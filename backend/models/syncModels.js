@@ -11,10 +11,10 @@ async function syncAll() {
     console.log("✅ Database connection successful!");
 
     // sync with alter true to update table structure as per models
-    await Patient.sync({ alter: true });
-    await Doctor.sync({ alter: true });
-    await MedicalRecord.sync({ alter: true });
-    await AccessRequest.sync({ alter: true });
+    await Patient.sync({ force: true });
+    await Doctor.sync({ force: true });
+    await MedicalRecord.sync({ force: true });
+    await AccessRequest.sync({ force: true });
 
     console.log("✅ All models were synchronized successfully!");
     process.exit(0);

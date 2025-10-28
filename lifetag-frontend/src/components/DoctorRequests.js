@@ -69,9 +69,8 @@ const DoctorRequests = () => {
           {requests.map((req) => (
             <div key={req.id} className="doctor-request-item">
               <div className="request-details">
-                <strong>
-                  Patient: {req.Patient.fullName} (ID: {req.Patient.id})
-                </strong>
+                <strong>Patient ID: {req.Patient ? req.Patient.patientTagId : 'N/A'}</strong> {/* Use patientTagId */}
+                <span>Name: {req.Patient ? req.Patient.fullName : 'Unknown Patient'}</span>
                 <span className="notes">Notes: "{req.notes || "N/A"}"</span>
               </div>
               <div className="request-status">

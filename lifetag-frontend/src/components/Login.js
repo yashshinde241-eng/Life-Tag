@@ -42,15 +42,26 @@ const Login = () => {
     }
     try {
       const response = await apiClient.post(url, formData);
-      const { token, patientId, doctorId } = response.data;
-      const id = role === 'patient' ? patientId : doctorId;
-      login(token, roleToSend, id);
+
+      // --- MODIFIED DATA EXTRACTION ---
+      const { token, patientId, doctorId, patientTagId } = response.data; // Get patientTagId
+      // Determine the internal ID based on the role
+      const internalId = role === 'patient' ? patientId : doctorId;
+      // Determine the tag ID (only patients have it for now)
+      const tagId = role === 'patient' ? patientTagId : null; 
+      // --- END MODIFICATION ---
+
+      // --- MODIFIED LOGIN CALL ---
+      // Pass internalId and tagId to the context login function
+      login(token, roleToSend, internalId, tagId); 
+      // --- END MODIFICATION ---
+      
       setLoading(false);
       navigate('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response);
       setLoading(false);
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      setError(err.response?.data?.message || 'Login failed.');
     }
   };
 

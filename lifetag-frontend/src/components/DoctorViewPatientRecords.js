@@ -6,7 +6,7 @@ import "./PatientRecords.css"; // Reuse patient styles
 import FileViewerModal from "./FileViewerModal";
 
 const DoctorViewPatientRecords = () => {
-  const [patientId, setPatientId] = useState("");
+  const [patientTagId, setPatientTagId] = useState("");
   const [records, setRecords] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,25 +21,25 @@ const DoctorViewPatientRecords = () => {
     setError(null);
     setRecords([]);
     setHasSearched(false);
-    if (!patientId) {
-      setError("Patient ID is required.");
+    if (!patientTagId) {
+      setError("Patient Tag ID is required.");
       setLoading(false);
       return;
     }
     try {
+      // --- CHANGE: Call the new Check Access route first ---
       const checkResponse = await apiClient.get(
-        `/access/check/${auth.id}/${patientId}`,
-        {
-          headers: { Authorization: `Bearer ${auth.token}` },
-        }
+        // Use internal doctor ID and patient Tag ID
+        `/access/check/${auth.id}/tag/${patientTagId}`,
+        { headers: { Authorization: `Bearer ${auth.token}` } }
       );
       if (checkResponse.data.hasAccess) {
+        // --- CHANGE: Call the new View Records route ---
         const recordsResponse = await apiClient.get(
-          `/records/patient/${patientId}`,
-          {
-            headers: { Authorization: `Bearer ${auth.token}` },
-          }
+          `/records/patient/tag/${patientTagId}`, // Use tag ID in URL
+          { headers: { Authorization: `Bearer ${auth.token}` } }
         );
+        // --- END CHANGE ---
         setRecords(recordsResponse.data);
         setHasSearched(true);
       } else {
@@ -67,17 +67,17 @@ const DoctorViewPatientRecords = () => {
         <form onSubmit={handleViewRecords} className="patient-select-form">
           {" "}
           {/* Added new class */}
-          <label htmlFor="patientIdInput">Patient ID:</label>{" "}
-          {/* Added htmlFor */}
+          <label htmlFor="viewPatientTagId">Patient Tag ID</label>
           <input
-            id="patientIdInput" // Added id
+            id="viewPatientTagId"
             type="number"
-            name="patientId"
-            placeholder="Enter Patient ID"
-            className="modern-input" // Keep this class
-            value={patientId}
-            onChange={(e) => setPatientId(e.target.value)}
+            name="patientTagId" // Use correct name
+            placeholder="Enter 7-Digit Tag ID"
+            className="modern-input"
+            value={patientTagId} // Use correct state
+            onChange={(e) => setPatientTagId(e.target.value)} // Update correct state
             required
+            autoComplete="numeric"
           />
           <button type="submit" className="primary-button" disabled={loading}>
             {loading ? "Checking..." : "View Records"}

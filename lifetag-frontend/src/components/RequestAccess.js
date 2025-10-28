@@ -5,7 +5,7 @@ import { useAuth } from './context/AuthContext';
 import ConfirmationModal from './ConfirmationModal'; // 1. Import modal
 
 const RequestAccess = () => {
-  const [patientId, setPatientId] = useState('');
+  const [patientTagId, setPatientTagId] = useState('');
   const [notes, setNotes] = useState('');
   
   const [error, setError] = useState(null);
@@ -24,20 +24,22 @@ const RequestAccess = () => {
     setSuccess(null);
 
     try {
+      // --- CHANGE: Send patientTagId in payload ---
       const payload = {
-        patientId: parseInt(patientId, 10),
+        patientTagId: parseInt(patientTagId, 10), // Send tag ID
         notes: notes || undefined,
       };
+      // --- END CHANGE ---
 
       await apiClient.post('/access/request', payload, {
         headers: { Authorization: `Bearer ${auth.token}` },
       });
-
       setLoading(false);
-      setSuccess(`Access requested for Patient ID: ${patientId}.`);
-      setPatientId('');
+      // --- CHANGE: Update success message ---
+      setSuccess(`Access requested for Patient Tag ID: ${patientTagId}.`);
+      setPatientTagId(''); // Clear tag ID state
+      // --- END CHANGE ---
       setNotes('');
-
     } catch (err) {
       console.error('Error requesting access:', err);
       setLoading(false);
@@ -46,17 +48,16 @@ const RequestAccess = () => {
   };
 
   // 4. This function now *opens* the modal instead of sending the API call
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-
-    if (!patientId) {
-      setError('Patient ID is required.');
+    // --- CHANGE: Validate patientTagId ---
+    if (!patientTagId) {
+      setError('Patient Tag ID is required.');
       return;
     }
-    
-    // Just open the modal
+    // --- END CHANGE ---
     setIsModalOpen(true);
   };
 
@@ -64,15 +65,17 @@ const RequestAccess = () => {
     <div className="glass-card" style={{ textAlign: 'left', color: '#FFF' }}>
       <h3 style={{ textAlign: 'center', marginTop: 0 }}>Request Patient Access</h3>
       <form onSubmit={handleSubmit}>
-        <label>Patient ID</label>
+        <label htmlFor="reqPatientTagId">Patient Tag ID</label> 
         <input
+          id="reqPatientTagId"
           type="number"
-          name="patientId"
-          placeholder="Enter Patient ID"
+          name="patientTagId" // Use correct name
+          placeholder="Enter 7-Digit Patient Tag ID"
           className="modern-input"
-          value={patientId}
-          onChange={(e) => setPatientId(e.target.value)}
+          value={patientTagId} // Use correct state variable
+          onChange={(e) => setPatientTagId(e.target.value)} // Update correct state
           required
+          autoComplete="numeric" // Add autocomplete
         />
         
         <label>Notes (Optional)</label>
@@ -117,7 +120,9 @@ const RequestAccess = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmRequest}
         title="Confirm Access Request"
-        message={`Are you sure you want to request access for Patient ID: ${patientId}?`}
+        // --- CHANGE: Update modal message ---
+        message={`Are you sure you want to request access for Patient Tag ID: ${patientTagId}?`}
+        // --- END CHANGE ---
       />
     </div>
   );
