@@ -3,6 +3,7 @@ import React from 'react';
 import { NavLink, useNavigate }from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import './Sidebar.css';
+import logoImage from '../assets/lifetag-logo.png';
 
 const Sidebar = () => {
   const { auth, logout } = useAuth();
@@ -18,7 +19,7 @@ const Sidebar = () => {
   return (
     <nav className="sidebar-container">
       <div className="sidebar-header">
-        <span className="sidebar-logo">🩺</span>
+        <img src={logoImage} alt="LifeTag Logo" className="sidebar-logo-img" />
         <h3>LifeTag</h3>
       </div>
       

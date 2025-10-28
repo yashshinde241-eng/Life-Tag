@@ -38,70 +38,45 @@ router.post(
   async (req, res) => {
     try {
       const doctorId = req.user.id;
-      const { patientTagId, recordType } = req.body; // Read patientTagId
-      const file = req.file; // File is now in req.file.buffer
+      const { patientTagId, recordType } = req.body; // Still use patientTagId
+      const file = req.file;
 
-      if (!patientTagId)
-        return res.status(400).json({ message: "patientTagId is required" });
+      if (!patientTagId) return res.status(400).json({ message: "patientTagId is required" });
       if (!file) return res.status(400).json({ message: "file is required" });
-      if (!BUCKET_NAME)
-        return res
-          .status(500)
-          .json({ message: "Storage Bucket not configured." });
 
-      // Find patient by patientTagId
-      const patient = await Patient.findOne({
-        where: { patientTagId: Number(patientTagId) },
-        attributes: ["id"],
-      }); // Get internal ID
+      // Find patient by patientTagId to get internal ID
+      const patient = await Patient.findOne({ where: { patientTagId: Number(patientTagId) }, attributes: ['id'] });
       if (!patient) {
-        return res
-          .status(404)
-          .json({ message: "Patient with the provided Tag ID not found." });
+        return res.status(404).json({ message: "Patient not found." });
       }
-      const internalPatientId = patient.id; // Correctly get the internal ID
+      const internalPatientId = patient.id;
 
       // Encrypt the file buffer
-      const fileBase64 = file.buffer.toString("base64");
-      const encryptedDataString = CryptoJS.AES.encrypt(
-        fileBase64,
-        process.env.ENCRYPTION_KEY
-      ).toString();
+      const fileBase64 = file.buffer.toString('base64');
+      const encryptedDataString = CryptoJS.AES.encrypt(fileBase64, process.env.ENCRYPTION_KEY).toString();
 
-      // --- FIX 1: Use internalPatientId in S3 key ---
-      const s3Key = `records/${internalPatientId}/${Date.now()}_${
-        file.originalname
-      }.enc`;
-      // --- END FIX 1 ---
-
-      // MinIO Upload Parameters
-      const s3Params = {
-        Bucket: BUCKET_NAME,
-        Key: s3Key,
-        Body: encryptedDataString,
-        ContentType: "text/plain; charset=utf-8",
-      };
-
-      // Upload encrypted data to MinIO
-      const s3UploadResult = await s3.upload(s3Params).promise();
-      console.log("Doctor MinIO Upload Success:", s3Key);
-
-      // --- FIX 2: Use internalPatientId when creating record ---
+      // --- CHANGE: Save to DB, NOT MinIO ---
+      // Save metadata AND the encrypted data string directly in the database
       const record = await MedicalRecord.create({
-        patientId: internalPatientId, // Use the found internal ID
+        patientId: internalPatientId, // Use internal ID
         doctorId: doctorId,
         fileName: file.originalname,
-        s3Key: s3Key, // Store the reference (key)
+        encryptedData: encryptedDataString, // Store encrypted data in DB
+        s3Key: null, // Ensure s3Key is null
         recordType: recordType || null,
+        // filePath is null
       });
-      // --- END FIX 2 ---
+      // --- END CHANGE ---
+
+      console.log(`Doctor uploaded record ${record.id} for patient ${internalPatientId}, saved locally (in DB).`);
 
       res.status(201).json({
-        message: "Medical record uploaded successfully.",
+        message: "Medical record uploaded successfully (pending cloud backup).", // Update message
         recordId: record.id,
       });
+
     } catch (err) {
-      console.error("Doctor MinIO Upload error:", err);
+      console.error("Doctor local upload error:", err);
       res.status(500).json({ message: "Internal Server Error during upload." });
     }
   }
