@@ -18,8 +18,8 @@ import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 
 // Import Patient Pages
-import PatientRecordsPage from './pages/PatientRecordsPage';
 import PatientRequestsPage from './pages/PatientRequestsPage';
+import CloudRecordsPage from './pages/CloudRecordsPage';
 
 // Import Doctor Pages
 import DoctorRequestAccessPage from './pages/DoctorRequestAccessPage';
@@ -59,7 +59,7 @@ function App() {
             {/* Patient Routes */}
             {auth?.role === 'patient' && (
               <>
-                <Route path="/my-records" element={<PatientRecordsPage />} />
+                <Route path="/cloud-records" element={<CloudRecordsPage />} />
                 <Route path="/my-requests" element={<PatientRequestsPage />} />
               </>
             )}

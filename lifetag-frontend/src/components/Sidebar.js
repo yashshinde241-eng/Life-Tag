@@ -36,9 +36,9 @@ const Sidebar = () => {
         {/* --- PATIENT LINKS --- */}
         {auth.role === 'patient' && (
           <>
-            <NavLink to="/my-records" className="sidebar-button">
-              <span className="nav-icon">🩺</span>
-              <span className="nav-text">My Records</span>
+            <NavLink to="/cloud-records" className="sidebar-button">
+              <span className="nav-icon">☁️</span>
+              <span className="nav-text">Cloud Records</span>
             </NavLink>
             <NavLink to="/my-requests" className="sidebar-button">
               <span className="nav-icon">🔔</span>
