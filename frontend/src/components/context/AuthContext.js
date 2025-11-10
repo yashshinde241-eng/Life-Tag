@@ -1,10 +1,13 @@
 // src/components/context/AuthContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import Loader from '../Loader';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null); // Will hold { token, role, id, patientTagId }
+  const [loading, setLoading] = useState(true);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const storedAuth = localStorage.getItem('lifetag-auth');
@@ -16,6 +19,8 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('lifetag-auth'); // Clear corrupted data
       }
     }
+    // Mark auth load attempt complete
+    setLoading(false);
   }, []);
 
   // --- MODIFIED LOGIN FUNCTION ---
@@ -27,14 +32,21 @@ export const AuthProvider = ({ children }) => {
   };
   // --- END MODIFICATION ---
 
+  // Start logout flow and wait for Loader to call finalizeLogout via onComplete
   const logout = () => {
+    setLoggingOut(true);
+  };
+
+  const finalizeLogout = () => {
     setAuth(null);
     localStorage.removeItem('lifetag-auth');
+    setLoggingOut(false);
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider value={{ auth, login, logout, loading, loggingOut }}>
       {children}
+  {loggingOut && <Loader text="Logging out..." minDisplayTime={1200} onComplete={finalizeLogout} />}
     </AuthContext.Provider>
   );
 };

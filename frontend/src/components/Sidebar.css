@@ -21,7 +21,7 @@
 }
 
 .sidebar-logo-img {
-  height: 30px; /* Adjust height as needed */
+  height: 60px; /* Adjust height as needed */
   width: auto;  /* Maintain aspect ratio */
   margin-right: 0.5rem; /* Space between logo and text */
 }

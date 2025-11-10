@@ -1,5 +1,5 @@
 // src/App.js
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './components/context/AuthContext';
 
@@ -28,11 +28,21 @@ import DoctorUploadPage from './pages/DoctorUploadPage';
 import DoctorViewRecordsPage from './pages/DoctorViewRecordsPage';
 
 // Import CSS
-import './App.css'; 
-import './index.css'; 
+import './App.css';
+import './index.css';
+import Loader from './components/Loader';
 
 function App() {
-  const { auth } = useAuth(); // Get auth to decide routes
+  const { auth, loading } = useAuth(); // Get auth and loading to decide routes
+
+  // Remove the static preloader once we finish initializing auth.
+  useEffect(() => {
+    if (!loading && typeof window !== 'undefined' && window.removePreloader) {
+      window.removePreloader();
+    }
+  }, [loading]);
+
+  if (loading) return <Loader />;
 
   // We wrap public routes in the centering class from index.css
   const publicRouteWrapper = (element) => (

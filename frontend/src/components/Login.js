@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import apiClient from '../api';
 import { useAuth } from './context/AuthContext';
+import Loader from './Loader';
 
 const Login = () => {
   const [role, setRole] = useState('patient');
@@ -12,6 +13,7 @@ const Login = () => {
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [redirectPath, setRedirectPath] = useState(null);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -51,13 +53,14 @@ const Login = () => {
       const tagId = role === 'patient' ? patientTagId : null; 
       // --- END MODIFICATION ---
 
-      // --- MODIFIED LOGIN CALL ---
-      // Pass internalId and tagId to the context login function
-      login(token, roleToSend, internalId, tagId); 
-      // --- END MODIFICATION ---
-      
-      setLoading(false);
-      navigate('/dashboard');
+  // --- MODIFIED LOGIN CALL ---
+  // Pass internalId and tagId to the context login function
+  login(token, roleToSend, internalId, tagId);
+  // --- END MODIFICATION ---
+
+  // Keep the loader visible and delay navigation until the Loader
+  // calls onComplete. Set the desired redirect path here.
+  setRedirectPath('/dashboard');
     } catch (err) {
       console.error('Login error:', err.response);
       setLoading(false);
@@ -66,8 +69,21 @@ const Login = () => {
   };
 
   return (
-    <div className="glass-card dark">
-      <h2>Login to Your Account</h2>
+    <>
+      {loading && (
+        <Loader
+          text="Signing in..."
+          minDisplayTime={1200}
+          onComplete={() => {
+            setLoading(false);
+            // navigate to the saved redirect path (fallback to /dashboard)
+            navigate(redirectPath || '/dashboard');
+            setRedirectPath(null);
+          }}
+        />
+      )}
+      <div className="glass-card dark">
+        <h2>Login to Your Account</h2>
 
       {/* --- NEW CORRECTED HTML --- */}
       <div 
@@ -132,6 +148,7 @@ const Login = () => {
         Don't have an account? <Link to="/register">Register here</Link>
       </p>
     </div>
+    </>
   );
 };
 

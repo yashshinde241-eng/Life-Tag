@@ -11,8 +11,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Our "very light green" background */
+  /* To change the page background image: place an image file in
+     the `public/` folder (e.g. `public/background.jpg`) and update
+     the URL below if you use a different name or path. */
+
+  /* Our "very light green" background (fallback) */
   background-color: #F8FFF8;
+
+  /* Background image is served from `public/` and applied at runtime
+    via JavaScript (see `src/index.js`). This avoids webpack trying to
+    resolve the `/background.png` URL during build. */
 
   /* Remove the centering and padding-bottom */
   min-height: 100vh;

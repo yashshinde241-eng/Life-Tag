@@ -23,10 +23,76 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
   <title>Life-Tag</title>
+  <style>
+    /* Preloader: lightweight inline CSS so it appears before React/CSS loads */
+    /* Ensure the page background is set immediately to avoid a white flash */
+    html, body { height: 100%; margin: 0; background-color: #F8FFF8; }
+
+    #preloader {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /* Use the same background image as the app (from public/).
+         Layer a subtle dark overlay so loader content remains readable. */
+      background-image: linear-gradient(rgba(0,0,0,0.28), rgba(0,0,0,0.28)), url('%PUBLIC_URL%/background.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      z-index: 99999;
+      transition: opacity 360ms ease;
+    }
+    #preloader.preloader-hide { opacity: 0; pointer-events: none; }
+    #preloader .preloader-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 24px;
+      border-radius: 12px;
+      /* translucent glass so the background image remains visible */
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    /* Logo sizing and flip animation */
+    #preloader .preloader-logo { width: 84px; height: 84px; display: block; transform-style: preserve-3d; backface-visibility: hidden; }
+    @keyframes preloader-flip {
+      0% { transform: rotateY(0) scale(1); }
+      25% { transform: rotateY(90deg) scale(0.9); }
+      50% { transform: rotateY(180deg) scale(1); }
+      75% { transform: rotateY(270deg) scale(1.02); }
+      100% { transform: rotateY(360deg) scale(1); }
+    }
+    #preloader .preloader-logo {
+      animation: preloader-flip 1.2s cubic-bezier(.2,.9,.2,1) infinite;
+    }
+  #preloader .preloader-text { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: #fff; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.45); }
+  </style>
+
+  <script>
+    // Mark when the preloader became visible so we can enforce a
+    // minimum visible duration when removing it later.
+    window.__preloaderStart = Date.now();
+  </script>
 </head>
 
-<body>
+  <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
+
+  <!-- Static preloader shown before React mounts -->
+  <div id="preloader" aria-hidden="false">
+    <div class="preloader-inner" role="status" aria-live="polite">
+      <!-- Flipping logo for a lively loader -->
+      <img src="%PUBLIC_URL%/logo192.png" alt="Life-Tag" class="preloader-logo" aria-hidden="true" />
+      <div class="preloader-text">Loading Life-Tag...</div>
+    </div>
+  </div>
+
   <div id="root"></div>
   <!--
       This HTML file is a template.
