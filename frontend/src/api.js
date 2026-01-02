@@ -1,7 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
-// This is your backend's base URL
-const BASE_URL = 'http://localhost:5000/api';
+// Backend base URL from environment variable
+const BASE_URL = process.env.REACT_APP_API_BASE_URL + "/api";
 
 const apiClient = axios.create({
   baseURL: BASE_URL,
