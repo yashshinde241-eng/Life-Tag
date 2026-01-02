@@ -5,7 +5,7 @@ require("dotenv").config();
 const sequelize = new Sequelize(
   process.env.DB_NAME || "LifeTagDB",
   process.env.DB_USER || "postgres",
-  process.env.DB_PASSWORD || "",
+  process.env.DB_PASSWORD || "yAsh@2127",
   {
     host: process.env.DB_HOST || "127.0.0.1",
     port: Number(process.env.DB_PORT || 5432),

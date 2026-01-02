@@ -161,7 +161,6 @@ const PatientRequests = () => {
   }
 
   return (
-    // Use React Fragment to return multiple top-level elements (the two cards)
     <>
       {/* 1. Active Sessions Card */}
       <div className="glass-card">

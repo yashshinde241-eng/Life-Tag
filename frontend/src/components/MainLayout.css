@@ -18,14 +18,28 @@
   border-radius: 20px;
   min-height: calc(100vh - 4rem); 
 
-  /* --- THIS IS THE NEW DARK GLASS --- */
-  background: rgba(40, 40, 40, 0.35); /* Dark grey, semi-transparent */
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1); /* Lighter border for contrast */
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2); /* Darker shadow */
-  /* ------------------------------------- */
-
-  /* --- NEW: Make all text inside white by default --- */
+  /* Dark water-glass main content */
+  background: linear-gradient(180deg, rgba(30,30,30,0.42) 0%, rgba(20,20,20,0.26) 60%, rgba(10,10,10,0.12) 100%);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 60px rgba(2,6,23,0.5), inset 0 1px 0 rgba(255,255,255,0.03);
   color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+}
+
+/* subtle highlight on the content area */
+.content-area::after {
+  content: '';
+  position: absolute;
+  top: -20%;
+  left: -40%;
+  width: 200%;
+  height: 60%;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 20%, rgba(255,255,255,0) 40%);
+  transform: rotate(-18deg);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.8;
 }
