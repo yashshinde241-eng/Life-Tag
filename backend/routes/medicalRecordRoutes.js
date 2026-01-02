@@ -10,20 +10,31 @@ const { MedicalRecord, Doctor, AccessRequest, Patient } = require("../models");
 // Ensure all necessary models are imported
 
 const authMiddleware = require("../middleware/authMiddleware");
-require("dotenv").config(); // Ensure env vars are loaded
-
 const router = express.Router();
 
+const isStorageEnabled =
+  process.env.MINIO_ENDPOINT &&
+  process.env.MINIO_ACCESS_KEY &&
+  process.env.MINIO_SECRET_KEY &&
+  process.env.AWS_S3_BUCKET_NAME;
+
 // --- Configure AWS SDK for MinIO ---
-const s3 = new AWS.S3({
-  endpoint: process.env.MINIO_ENDPOINT, // e.g., http://localhost:9000
-  accessKeyId: process.env.MINIO_ACCESS_KEY, // e.g., minioadmin
-  secretAccessKey: process.env.MINIO_SECRET_KEY, // e.g., minioadmin
-  s3ForcePathStyle: true, // Required for MinIO
-  signatureVersion: "v4", // Required for MinIO
-  sslEnabled: process.env.MINIO_USE_SSL === "true", // Should be false for local http
-});
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME; // Your MinIO bucket name (e.g., lifetag-records)
+let s3 = null;
+let BUCKET_NAME = null;
+
+if (isStorageEnabled) {
+  s3 = new AWS.S3({
+    endpoint: process.env.MINIO_ENDPOINT,
+    accessKeyId: process.env.MINIO_ACCESS_KEY,
+    secretAccessKey: process.env.MINIO_SECRET_KEY,
+    s3ForcePathStyle: true,
+    signatureVersion: "v4",
+    sslEnabled: process.env.MINIO_USE_SSL === "true",
+  });
+
+  BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
+}
+
 // --- End MinIO Config ---
 
 // --- Multer Setup (Using Memory Storage) ---
@@ -95,7 +106,7 @@ router.post(
       const file = req.file;
 
       if (!file) return res.status(400).json({ message: "file is required" });
-      if (!BUCKET_NAME)
+      if (!s3 || !BUCKET_NAME)
         return res
           .status(500)
           .json({ message: "Storage Bucket not configured." });
@@ -306,7 +317,7 @@ router.get("/view/:recordId", authMiddleware(), async (req, res) => {
 
     // Fetch from MinIO if s3Key exists, otherwise fallback
     if (record.s3Key) {
-      if (!BUCKET_NAME)
+      if (!s3 || !BUCKET_NAME)
         return res
           .status(500)
           .json({ message: "Storage Bucket not configured." });
@@ -393,7 +404,7 @@ router.post(
         return res.status(403).json({ message: "Forbidden: Not your record" });
       if (record.s3Key)
         return res.status(400).json({ message: "Record is already backed up" });
-      if (!BUCKET_NAME)
+      if (!s3 || !BUCKET_NAME)
         return res
           .status(500)
           .json({ message: "Storage Bucket not configured." });
@@ -479,7 +490,7 @@ router.delete(
         return res
           .status(400)
           .json({ message: "Record is not stored in the cloud" });
-      if (!BUCKET_NAME)
+      if (!s3 || !BUCKET_NAME)
         return res
           .status(500)
           .json({ message: "Storage Bucket not configured." });
